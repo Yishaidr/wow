@@ -2,7 +2,7 @@ import motor.motor_asyncio
 from bson.objectid import ObjectId
 
 
-MONGO_DETAILS = "mongodb://wowmongo:27017"
+MONGO_DETAILS = "mongodb://admin:wowisofek@wowmongo.eastus.azurecontainer.io:27017"
 
 wow= motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 
@@ -11,9 +11,9 @@ database = wow.schedule
 
 def event_helper(event) -> dict:
     return {
-        "date": event["date"],
+        "time": event["time"],
         "title": event["title"],
-        "email": event["relevant"]
+        "relevant": event["relevant"]
     }
 
 
