@@ -42,3 +42,10 @@ async def add_event(event: dict, schedule: str) -> dict:
     event = await events_collection.insert_one(event)
     new_event = await events_collection.find_one({"_id": event.inserted_id})
     return event_helper(new_event)
+
+async def add_events(events: dict, schedule: str):
+    events_collection = database.create_collection(schedule)
+    events_request = await events_collection.bulk_write(events)
+    if events_request.inserted_count == len(events):
+        return events
+    return "Faild"
