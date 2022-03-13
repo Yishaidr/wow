@@ -4,8 +4,21 @@ from fastapi.encoders import jsonable_encoder
 from Modals.schedule_request import ScheduleRequest
 from pip import main
 import google_calander_api
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = [
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/test")
 async def testapp():
