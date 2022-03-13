@@ -23,3 +23,9 @@ async def retrieve_schedule(schedule):
     async for event in events_collection.find():
         events.append(event_helper(event))
     return events
+
+async def add_event(event: dict, schedule: str) -> dict:
+    events_collection = database.get_collection(schedule)
+    event = await events_collection.insert_one(event)
+    new_event = await events_collection.find_one({"_id": event.inserted_id})
+    return event_helper(new_event)
