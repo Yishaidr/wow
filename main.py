@@ -43,14 +43,14 @@ async def sendschedule(schedule_request: ScheduleRequest):
     return relevant_events
 
 
-@app.post("/updateCalander")
+@app.post("/updateCalander", description="Get Current calander from google and push to mongo")
 async def update_calander():
     events = google_calander_api.get_cal_events()
     print(events)
     # todo: push to mongo with ofek
 
 
-@app.get("/getListOfPeople/pluga")
+@app.get("/getListOfPeople/pluga", description="Get all pluga's optional names")
 async def get_pluga_list():
     pluga_names = config_obj["pluga"]["names"]
     pluga_names_json = json.loads(pluga_names)
@@ -58,3 +58,12 @@ async def get_pluga_list():
     for name in pluga_names_json:
         array.append({"label": name, "value": name})
     return array
+
+
+@app.get("/getcalander/{pluga_name}", description="Get spesific pluga's schedule")
+async def get_pluga_calander(pluga_name: str):
+    # temp!!!
+    # pulles all events directly from google (not mongo)
+    events = google_calander_api.get_cal_events()
+    return(events)
+    # todo: get spesific plugas schedual
