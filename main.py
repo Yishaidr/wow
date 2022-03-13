@@ -2,6 +2,8 @@ from fastapi import Depends, FastAPI, Body
 import DAL.database as db
 from fastapi.encoders import jsonable_encoder
 from Modals.schedule_request import ScheduleRequest
+from pip import main
+import google_calander_api
 
 app = FastAPI()
 
@@ -18,3 +20,9 @@ async def sendschedule(schedule_request: ScheduleRequest):
         if event["relevant"] == schedule["relevant"] or event["relevant"] == "all":
             relevant_events.append(event)
     return relevant_events
+  
+@app.post("/updateCalander")
+async def update_calander():
+    events = google_calander_api.get_cal_events()
+    print(events)
+    #todo: push to mongo with ofek
