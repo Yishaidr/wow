@@ -11,9 +11,22 @@ database = wow.schedule
 
 def event_helper(event) -> dict:
     return {
-        "time": event["time"],
-        "title": event["title"],
-        "relevant": event["relevant"]
+        "kind": event["kind"],
+        "etag": event["etag"],
+        "id": event["id"],
+        "status": event["status"],
+        "htmlLink": event["htmlLink"],
+        "created": event["created"],
+        "updated": event["updated"],
+        "summary": event["summary"],
+        "creator": event["creator"],
+        "organizer": event["organizer"],
+        "start": event["start"],
+        "end": event["end"],
+        "iCalUID": event["iCalUID"],
+        "sequence": event["sequesnce"],
+        "reminders": event["reminders"],
+        "eventType": event["eventType"]
     }
 
 
