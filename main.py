@@ -1,3 +1,4 @@
+import json
 from fastapi import Depends, FastAPI, Body
 import DAL.database as db
 from fastapi.encoders import jsonable_encoder
@@ -5,6 +6,11 @@ from Modals.schedule_request import ScheduleRequest
 from pip import main
 import google_calander_api
 from fastapi.middleware.cors import CORSMiddleware
+from configparser import ConfigParser
+
+# Read config.ini file
+config_obj = ConfigParser()
+config_obj.read("mainconfig.ini")
 
 app = FastAPI()
 
@@ -20,9 +26,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/test")
 async def testapp():
     return {"i am running": True}
+
 
 @app.post("/sendScheduled")
 async def sendschedule(schedule_request: ScheduleRequest):
@@ -33,9 +41,20 @@ async def sendschedule(schedule_request: ScheduleRequest):
         if event["relevant"] == schedule["relevant"] or event["relevant"] == "all":
             relevant_events.append(event)
     return relevant_events
-  
+
+
 @app.post("/updateCalander")
 async def update_calander():
     events = google_calander_api.get_cal_events()
     print(events)
-    #todo: push to mongo with ofek
+    # todo: push to mongo with ofek
+
+
+@app.get("/getListOfPeople/pluga")
+async def get_pluga_list():
+    pluga_names = config_obj["pluga"]["names"]
+    pluga_names_json = json.loads(pluga_names)
+    array = []
+    for name in pluga_names_json:
+        array.append({"label": name, "value": name})
+    return array
