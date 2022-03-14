@@ -44,10 +44,26 @@ async def sendschedule(schedule_request: ScheduleRequest):
     return relevant_events
 
 
+def get_group_from_description(description=None):
+    print(description)
+    return description
+
+
+def set_event_group(events):
+    for i in events:
+        if "description" in i:
+            i["group"] = get_group_from_description(i["description"])
+            i["group"] = "a"
+        else:
+            i["group"] = "Unknown"
+    return events
+
+
 @app.post("/updateCalander", description="Get Current calander from google and push to mongo")
 async def update_calander():
     events = google_calander_api.get_cal_events()
-    response = await db.add_events(events, events[0]["start"]["dateTime"][:10])
+    events_with_group = set_event_group(events)
+    response = await db.add_events(events_with_group, events_with_group[0]["start"]["dateTime"][:10])
     return response
 
 
@@ -68,3 +84,9 @@ async def get_pluga_calander(pluga_name: str):
     events = google_calander_api.get_cal_events()
     return(events)
     # todo: get spesific plugas schedual
+
+
+@app.post("/test/getCalander", description="Get Current calander from google")
+async def update_calander():
+    events = google_calander_api.get_cal_events()
+    return events

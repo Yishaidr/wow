@@ -18,6 +18,7 @@ def event_helper(event) -> dict:
         "htmlLink": event["htmlLink"],
         "created": event["created"],
         "updated": event["updated"],
+        "group": event["group"],
         "summary": event["summary"],
         "creator": event["creator"],
         "organizer": event["organizer"],
@@ -44,7 +45,8 @@ async def add_event(event: dict, schedule: str) -> dict:
     return event_helper(new_event)
 
 async def add_events(events: dict, schedule: str):
-    events_collection = database.create_collection(schedule)
+    new_collection = database.create_collection(schedule)
+    events_collection = database.get_collection(schedule)   
     events_request = await events_collection.bulk_write(events)
     if events_request.inserted_count == len(events):
         return events
