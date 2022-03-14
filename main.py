@@ -1,4 +1,5 @@
 import json
+from urllib import response
 from fastapi import Depends, FastAPI, Body
 import DAL.database as db
 from fastapi.encoders import jsonable_encoder
@@ -46,8 +47,8 @@ async def sendschedule(schedule_request: ScheduleRequest):
 @app.post("/updateCalander", description="Get Current calander from google and push to mongo")
 async def update_calander():
     events = google_calander_api.get_cal_events()
-    print(events)
-    # todo: push to mongo with ofek
+    response = await db.add_events(events, events[0]["start"]["dateTime"][:10])
+    return response
 
 
 @app.get("/getListOfPeople/pluga", description="Get all pluga's optional names")
