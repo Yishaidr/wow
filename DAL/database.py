@@ -26,9 +26,10 @@ def event_helper(event) -> dict:
         "start": event["start"],
         "end": event["end"],
         "iCalUID": event["iCalUID"],
-        "sequence": event["sequesnce"],
+        "sequence": event["sequence"],
         "reminders": event["reminders"],
-        "eventType": event["eventType"]
+        "eventType": event["eventType"],
+        "group": event["group"]
     }
 
 
@@ -50,7 +51,7 @@ async def add_events(events: dict, schedule: str):
     requests = [InsertOne(e) for e in events] 
     events_request = await events_collection.bulk_write(requests)
     if events_request.inserted_count == len(events):
-        return "Succesed"
+        return await retrieve_schedule(schedule)
     return "Faild"
 
 async def get_or_create_collection(collection: str):
@@ -58,3 +59,4 @@ async def get_or_create_collection(collection: str):
     if collection not in collection_names:
         await database.create_collection(collection)  
     return database.get_collection(collection)
+    
