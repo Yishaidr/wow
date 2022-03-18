@@ -4,7 +4,7 @@ from configparser import ConfigParser
 
 # Read config.ini file
 config_obj = ConfigParser()
-config_obj.read("google_calander_api\config.ini")
+config_obj.read("./google_calander_api/config.ini")
 print(config_obj.sections())
 
 calanderid = config_obj["googleCalander"]["calendarId"]
