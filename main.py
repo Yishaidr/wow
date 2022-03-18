@@ -67,7 +67,7 @@ def set_event_group(events):
     for i in events:
         if "description" in i:
             i["group"] = get_group_from_description(i["description"])
-            i["description"] = i["description"].split('\n', 1)
+            i["description"] = i["description"].split('\n', 1)[0]
         else:
             i["group"] = "Unknown"
     return events
