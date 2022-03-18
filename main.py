@@ -67,6 +67,7 @@ def set_event_group(events):
     for i in events:
         if "description" in i:
             i["group"] = get_group_from_description(i["description"])
+            i["description"] = i["description"].split('\n', 1)
         else:
             i["group"] = "Unknown"
     return events
@@ -132,8 +133,8 @@ async def get_name_list() -> list:
 
 def minimize_event(event) -> json:
     newjson = {}
-    newjson["start"] = event["start"]["dateTime"]
-    newjson["end"] = event["end"]["dateTime"]
+    newjson["start"] = event["start"]["dateTime"][11:19]
+    newjson["end"] = event["end"]["dateTime"][11:19]
     newjson["summery"] = event["summary"]
     newjson["description"] = event["description"]
     return newjson
@@ -187,9 +188,7 @@ async def get_pluga_calander(team_name: str):
     team_tree = get_team_tree(team_name)
     tomorrow_events = []
     for event in events_with_group:
-        print(str(event["group"] + " " + str(team_tree)))
         if event["group"] in team_tree:
-            print("added")
             tomorrow_events.append(minimize_event(event))
     return(tomorrow_events)
 
