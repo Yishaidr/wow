@@ -45,16 +45,28 @@ async def sendschedule(schedule_request: ScheduleRequest):
     return relevant_events
 
 
-def get_group_from_description(description=None):
-    print(description)
-    return description
+def get_group_from_description(description: str = None):
+    """splits description field from google calander and returnes its group.
+        The group will be in the first line of the description.
+
+    Args:
+        description (str, optional): description from google calander. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
+    # Some of the messages can come with html headers as string (copy paste shit).
+    if description.startswith('<html-blob>'):
+        description = description[11:]
+    description = description.replace('<', "\n")
+    first_line_of_description = description.split('\n', 1)[0]
+    return first_line_of_description
 
 
 def set_event_group(events):
     for i in events:
         if "description" in i:
             i["group"] = get_group_from_description(i["description"])
-            i["group"] = "a"
         else:
             i["group"] = "Unknown"
     return events
@@ -118,13 +130,68 @@ async def get_name_list() -> list:
     return names_list
 
 
-@app.get("/getcalander/{pluga_name}", description="Get spesific pluga's schedule")
-async def get_pluga_calander(pluga_name: str):
+def minimize_event(event) -> json:
+    newjson = {}
+    newjson["start"] = event["start"]["dateTime"]
+    newjson["end"] = event["end"]["dateTime"]
+    newjson["summery"] = event["summary"]
+    newjson["description"] = event["description"]
+    return newjson
+
+
+def get_team_tree(group_name: str) -> list:
+    """function gets group name and retuen array of its hirarchy.
+
+    Args:
+        group_name (str): group hirarcy name - example: amram or digitl.
+
+    Returns:
+        list : list of strings of hirarcy. example: amram -> [amram, hatam, hermon].
+    """
+    pluga_names = config_obj["pluga"]["names"]
+    pluga_names_json = json.loads(pluga_names)
+    tree_list = []
+    for pluga in pluga_names_json:
+        if group_name == pluga:
+            tree_list.append(pluga)
+            break
+        for maarach in pluga_names_json[pluga]:
+            if group_name == maarach:
+                tree_list.append(pluga)
+                tree_list.append(maarach)
+                break
+            for team in pluga_names_json[pluga][maarach]:
+                if group_name == team:
+                    tree_list.append(team)
+                    tree_list.append(maarach)
+                    tree_list.append(pluga)
+                    break
+        if not tree_list:
+            raise TypeError
+    return tree_list
+
+
+@app.get("/getcalander/{team_name}", description="Get spesific teams's schedule")
+async def get_pluga_calander(team_name: str):
+    """function gets group name (pluga, maarach, team) and return it's given schedual
+
+    Args:
+        team_name (str): team name - example: amram or digital.
+    """
     # temp!!!
     # pulles all events directly from google (not mongo)
     events = google_calander_api.get_cal_events()
-    return(events)
-    # todo: get spesific plugas schedual
+    events_with_group = set_event_group(events)
+    # to update get events from mongo
+
+    team_tree = get_team_tree(team_name)
+    tomorrow_events = []
+    for event in events_with_group:
+        print(str(event["group"] + " " + str(team_tree)))
+        if event["group"] in team_tree:
+            print("added")
+            tomorrow_events.append(minimize_event(event))
+    return(tomorrow_events)
 
 
 @app.post("/test/getCalander", description="Get Current calander from google")
