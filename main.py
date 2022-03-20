@@ -1,7 +1,7 @@
 import json
 from re import A
 from urllib import response
-from fastapi import Depends, FastAPI, Body
+from fastapi import Depends, FastAPI, Body, HTTPException
 import DAL.database as db
 from fastapi.encoders import jsonable_encoder
 from Modals.schedule_request import ScheduleRequest
@@ -168,7 +168,7 @@ def get_team_tree(group_name: str) -> list:
                     tree_list.append(pluga)
                     break
         if not tree_list:
-            raise TypeError
+            return None
     return tree_list
 
 
@@ -186,6 +186,8 @@ async def get_pluga_calander(team_name: str):
     # to update get events from mongo
 
     team_tree = get_team_tree(team_name)
+    if team_tree is None:
+        raise HTTPException(status_code=404, detail="Item not found""Team name doesn't exist")
     tomorrow_events = []
     for event in events_with_group:
         if event["group"] in team_tree:
