@@ -7,6 +7,7 @@ router = APIRouter()
 config_obj = ConfigParser()
 config_obj.read("mainconfig.ini")
 
+
 @router.get("/getListOfPeople/pluga", description="Get all pluga's optional names")
 async def get_pluga_list():
     pluga_names = config_obj["pluga"]["names"]
