@@ -1,3 +1,4 @@
+import imp
 import json
 from re import A
 from urllib import response
@@ -9,12 +10,14 @@ from pip import main
 import google_calander_api
 from fastapi.middleware.cors import CORSMiddleware
 from configparser import ConfigParser
-
+from routers import listofpeoplerouter as listofpeoplerouter
 # Read config.ini file
 config_obj = ConfigParser()
 config_obj.read("mainconfig.ini")
 
 app = FastAPI()
+
+app.include_router(listofpeoplerouter)
 
 origins = [
     "*"
@@ -79,56 +82,6 @@ async def update_calander():
     events_with_group = set_event_group(events)
     response = await db.add_events(events_with_group, events_with_group[0]["start"]["dateTime"][:10])
     return response
-
-
-@app.get("/getListOfPeople/pluga", description="Get all pluga's optional names")
-async def get_pluga_list():
-    pluga_names = config_obj["pluga"]["names"]
-    pluga_names_json = json.loads(pluga_names)
-    pluga_names_list = []
-    for name in pluga_names_json:
-        pluga_names_list.append({"label": name, "value": name})
-    return pluga_names_list
-
-
-@app.get("/getListOfPeople/{pluga_name}/maarach", description="Get all maarach names in a pluga")
-async def get_maarach_list_in_pluga(pluga_name: str) -> list:
-    pluga_names = config_obj["pluga"]["names"]
-    pluga_names_json = json.loads(pluga_names)
-    return list(pluga_names_json[pluga_name].keys())
-
-
-@app.get("/getListOfPeople/{pluga_name}/{maarach}/team", description="Get all team names in a maarach")
-async def get_team_list_in_maarach(pluga_name: str, maarach: str) -> list:
-    pluga_names = config_obj["pluga"]["names"]
-    pluga_names_json = json.loads(pluga_names)
-    return pluga_names_json[pluga_name][maarach]
-
-
-@app.get("/getListOfPeople/team", description="Get all team names")
-async def get_team_list() -> list:
-    pluga_names = config_obj["pluga"]["names"]
-    pluga_names_json = json.loads(pluga_names)
-    team_list = []
-    for pluga in pluga_names_json:
-        for maarach in pluga_names_json[pluga]:
-            for team in pluga_names_json[pluga][maarach]:
-                team_list.append(team)
-    return team_list
-
-
-@app.get("/getListOfPeople/all", description="Get all pluga, maarach and team names")
-async def get_name_list() -> list:
-    pluga_names = config_obj["pluga"]["names"]
-    pluga_names_json = json.loads(pluga_names)
-    names_list = set()
-    for pluga in pluga_names_json:
-        names_list.add(pluga)
-        for maarach in pluga_names_json[pluga]:
-            names_list.add(maarach)
-            for team in pluga_names_json[pluga][maarach]:
-                names_list.add(team)
-    return names_list
 
 
 def minimize_event(event) -> json:
