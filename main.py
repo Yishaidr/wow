@@ -85,10 +85,10 @@ async def update_calander():
 async def get_pluga_list():
     pluga_names = config_obj["pluga"]["names"]
     pluga_names_json = json.loads(pluga_names)
-    array = []
+    pluga_names_list = []
     for name in pluga_names_json:
-        array.append({"label": name, "value": name})
-    return array
+        pluga_names_list.append({"label": name, "value": name})
+    return pluga_names_list
 
 
 @app.get("/getListOfPeople/{pluga_name}/maarach", description="Get all maarach names in a pluga")
@@ -187,7 +187,8 @@ async def get_pluga_calander(team_name: str):
 
     team_tree = get_team_tree(team_name)
     if team_tree is None:
-        raise HTTPException(status_code=404, detail="Item not found""Team name doesn't exist")
+        raise HTTPException(
+            status_code=404, detail="Item not found""Team name doesn't exist")
     tomorrow_events = []
     for event in events_with_group:
         if event["group"] in team_tree:
