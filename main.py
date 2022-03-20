@@ -64,12 +64,12 @@ def get_group_from_description(description: str = None):
 
 
 def set_event_group(events):
-    for i in events:
-        if "description" in i:
-            i["group"] = get_group_from_description(i["description"])
-            i["description"] = i["description"].split('\n', 1)[0]
+    for event in events:
+        if "description" in event:
+            event["group"] = get_group_from_description(event["description"])
+            event["description"] = event["description"].split('\n', 1)[0]
         else:
-            i["group"] = "Unknown"
+            event["group"] = "Unknown"
     return events
 
 
