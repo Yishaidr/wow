@@ -1,3 +1,4 @@
+import datetime
 import imp
 import json
 from re import A
@@ -128,7 +129,7 @@ def get_team_tree(group_name: str) -> list:
     return tree_list
 
 
-@app.get("/getcalander/{team_name}/{date}", description="Get spesific teams's schedule")
+@app.get("/getcalander/{team_name}/{date}", description="Get spesific teams's schedule for given date. example: 2022-03-12")
 async def get_pluga_calander(team_name: str, date:str):
     """function gets group name (pluga, maarach, team) and return it's given schedual
 
@@ -136,8 +137,26 @@ async def get_pluga_calander(team_name: str, date:str):
         team_name (str): team name - example: amram or digital.
     """
     events_with_group = await db.retrieve_schedule(date)
-    # to update get events from mongo
+    team_tree = get_team_tree(team_name)
+    if team_tree is None:
+        raise HTTPException(
+            status_code=404, detail="Item not found""Team name doesn't exist")
+    tomorrow_events = []
+    for event in events_with_group:
+        if event["group"] in team_tree:
+            tomorrow_events.append(minimize_event(event))
+    return(tomorrow_events)
 
+
+@app.get("/getcalandertomorrow/{team_name}", description="Get spesific teams's schedule for tomorrow")
+async def get_tomorrow_pluga_calander(team_name: str):
+    """function gets group name (pluga, maarach, team) and return it's given schedual
+
+    Args:
+        team_name (str): team name - example: amram or digital.
+    """
+    date = str(datetime.date.today() + datetime.timedelta(days=1))[0:10]
+    events_with_group = await db.retrieve_schedule(date)
     team_tree = get_team_tree(team_name)
     if team_tree is None:
         raise HTTPException(
