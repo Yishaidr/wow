@@ -40,7 +40,7 @@ async def testapp():
 @app.post("/sendScheduled")
 async def sendschedule(schedule_request: ScheduleRequest):
     schedule = jsonable_encoder(schedule_request)
-    events = await db.retrieve_schedule(schedule["name"])
+    events = await db.retrieve_schedule(schedule["date"])
     relevant_events = []
     for event in events:
         if event["relevant"] == schedule["relevant"] or event["relevant"] == "all":
@@ -89,7 +89,10 @@ def minimize_event(event) -> json:
     newjson["start"] = event["start"]["dateTime"][11:19]
     newjson["end"] = event["end"]["dateTime"][11:19]
     newjson["summery"] = event["summary"]
-    newjson["description"] = event["description"]
+    try:
+        newjson["description"] = event["description"]
+    except:
+        print("description doesn't exist")
     return newjson
 
 
@@ -125,17 +128,14 @@ def get_team_tree(group_name: str) -> list:
     return tree_list
 
 
-@app.get("/getcalander/{team_name}", description="Get spesific teams's schedule")
-async def get_pluga_calander(team_name: str):
+@app.get("/getcalander/{team_name}/{date}", description="Get spesific teams's schedule")
+async def get_pluga_calander(team_name: str, date:str):
     """function gets group name (pluga, maarach, team) and return it's given schedual
 
     Args:
         team_name (str): team name - example: amram or digital.
     """
-    # temp!!!
-    # pulles all events directly from google (not mongo)
-    events = google_calander_api.get_cal_events()
-    events_with_group = set_event_group(events)
+    events_with_group = await db.retrieve_schedule(date)
     # to update get events from mongo
 
     team_tree = get_team_tree(team_name)
